@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+litellm_ainative/__init__.py
+litellm_ainative/provider.py
+litellm_ainative.egg-info/PKG-INFO
+litellm_ainative.egg-info/SOURCES.txt
+litellm_ainative.egg-info/dependency_links.txt
+litellm_ainative.egg-info/requires.txt
+litellm_ainative.egg-info/top_level.txt
+tests/test_provider.py
