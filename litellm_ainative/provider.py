@@ -221,3 +221,38 @@ def completion(model: str, messages: list, **kwargs) -> dict:
         api_base=base,
         **kwargs,
     )
+
+
+async def acompletion(model: str, messages: list, **kwargs) -> dict:
+    """
+    Async convenience wrapper: call litellm.acompletion with AINative credentials.
+
+    Same as completion() but async. Requires ``await``.
+
+    Args:
+        model: Model name, e.g. ``"ainative/meta-llama/Llama-3.3-70B-Instruct"``.
+        messages: List of message dicts (OpenAI format).
+        **kwargs: Additional arguments forwarded to ``litellm.acompletion``.
+
+    Returns:
+        The litellm completion response.
+    """
+    key = os.environ.get("AINATIVE_API_KEY")
+    base = os.environ.get("AINATIVE_API_BASE", API_BASE)
+
+    if not key:
+        raise RuntimeError(
+            "AINative not configured. Call litellm_ainative.configure() first."
+        )
+
+    upstream_model = model
+    if model in MODELS:
+        upstream_model = "openai/" + MODELS[model]["upstream_id"]
+
+    return await litellm.acompletion(
+        model=upstream_model,
+        messages=messages,
+        api_key=key,
+        api_base=base,
+        **kwargs,
+    )

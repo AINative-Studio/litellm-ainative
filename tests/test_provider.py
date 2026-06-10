@@ -22,6 +22,7 @@ from litellm_ainative.provider import (
     _get_model_list,
     configure,
     completion,
+    acompletion,
 )
 
 
@@ -222,6 +223,47 @@ class TestCompletion:
         call_kwargs = mock_litellm.completion.call_args[1]
         assert call_kwargs["temperature"] == 0.5
         assert call_kwargs["max_tokens"] == 100
+
+
+class TestAcompletion:
+    """acompletion() async wrapper tests."""
+
+    def setup_method(self):
+        os.environ.pop("AINATIVE_API_KEY", None)
+        os.environ.pop("AINATIVE_API_BASE", None)
+
+    def teardown_method(self):
+        os.environ.pop("AINATIVE_API_KEY", None)
+        os.environ.pop("AINATIVE_API_BASE", None)
+
+    def test_acompletion_without_configure_raises(self):
+        import asyncio
+        with pytest.raises(RuntimeError, match="not configured"):
+            asyncio.run(acompletion("ainative/kimi-k2", [{"role": "user", "content": "hi"}]))
+
+    @patch("litellm_ainative.provider.litellm")
+    def test_acompletion_routes_correctly(self, mock_litellm):
+        import asyncio
+
+        os.environ["AINATIVE_API_KEY"] = "test_key"
+        os.environ["AINATIVE_API_BASE"] = API_BASE
+
+        async def fake_acompletion(**kwargs):
+            return {"choices": []}
+
+        mock_litellm.acompletion = MagicMock(side_effect=lambda **kw: fake_acompletion())
+
+        asyncio.run(acompletion("ainative/kimi-k2", [{"role": "user", "content": "hi"}]))
+
+        mock_litellm.acompletion.assert_called_once()
+        call_kwargs = mock_litellm.acompletion.call_args
+        assert call_kwargs[1]["api_key"] == "test_key"
+        assert call_kwargs[1]["model"] == "openai/kimi-k2"
+
+    def test_acompletion_exported_from_package(self):
+        import litellm_ainative
+        assert hasattr(litellm_ainative, "acompletion")
+        assert hasattr(litellm_ainative, "completion")
 
 
 class TestVersion:

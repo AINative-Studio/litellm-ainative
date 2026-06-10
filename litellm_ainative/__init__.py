@@ -17,9 +17,11 @@ Usage:
 
 from litellm_ainative.provider import (
     configure,
+    completion,
+    acompletion,
     MODELS,
     API_BASE,
 )
 
 __version__ = "0.1.0"
-__all__ = ["configure", "MODELS", "API_BASE", "__version__"]
+__all__ = ["configure", "completion", "acompletion", "MODELS", "API_BASE", "__version__"]
